@@ -117,8 +117,6 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
             }
             String key1 = remoteMessage.getData().get("key1");
             String key2 = remoteMessage.getData().get("key2");
-
-            //Log.e("TAG", "DATA IN KEY 1 and KEY 2 is " + key1 + "\n" + key2);
         }
     }
 
