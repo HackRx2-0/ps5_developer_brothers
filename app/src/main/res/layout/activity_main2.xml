@@ -1,0 +1,98 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".MainActivity2">
+
+
+    <TextView
+        android:id="@+id/idTVLanguage"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="50dp"
+        android:gravity="center"
+        android:padding="5dp"
+        android:text="Select your language"
+        android:textAlignment="center"
+        android:textColor="@color/black"
+        android:textSize="20sp" />
+
+    <RadioGroup
+        android:id="@+id/idRGLanguage"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/idTVLanguage">
+
+        <RadioButton
+            android:id="@+id/rbEnglish"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:padding="10dp"
+            android:text="English"
+            android:textColor="@color/black" />
+
+        <RadioButton
+            android:id="@+id/rbHindi"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:padding="10dp"
+            android:text="Hindi"
+            android:textColor="@color/black" />
+
+    </RadioGroup>
+
+
+    <TextView
+        android:id="@+id/idTVNotification"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/idRGLanguage"
+        android:layout_marginTop="30dp"
+        android:gravity="center"
+        android:padding="4dp"
+        android:text="Enable / Disable Notifications"
+        android:textAlignment="center"
+        android:textColor="@color/black"
+        android:textSize="20sp" />
+
+    <RadioGroup
+        android:id="@+id/idRGNotification"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/idTVNotification">
+
+        <RadioButton
+            android:id="@+id/rbEnable"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:padding="10dp"
+            android:text="Enable Audio Notifications"
+            android:textColor="@color/black" />
+
+        <RadioButton
+            android:id="@+id/rbDisable"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:padding="10dp"
+            android:text="Disable Audio Notifications"
+            android:textColor="@color/black" />
+
+    </RadioGroup>
+
+
+    <Button
+        android:id="@+id/idBtnSpeak"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/idRGNotification"
+        android:layout_centerInParent="true"
+        android:layout_marginTop="30dp"
+        android:text="Save" />
+
+</RelativeLayout>
