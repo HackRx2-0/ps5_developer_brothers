@@ -7,6 +7,7 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.media.AudioManager;
+import android.os.SystemClock;
 import android.speech.tts.TextToSpeech;
 import android.util.Log;
 
@@ -22,6 +23,7 @@ import com.google.firebase.ml.naturallanguage.FirebaseNaturalLanguage;
 import com.google.firebase.ml.naturallanguage.translate.FirebaseTranslateLanguage;
 import com.google.firebase.ml.naturallanguage.translate.FirebaseTranslator;
 import com.google.firebase.ml.naturallanguage.translate.FirebaseTranslatorOptions;
+import com.google.gson.Gson;
 
 import java.util.ArrayList;
 import java.util.Locale;
@@ -38,17 +40,11 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
     SharedPreferences sharedpreferences;
     String notification, language;
     boolean isSilent = false;
+    int notificationPriority = 0;
     ArrayList<String> notificationQueue = new ArrayList<>();
 
     @Override
     public void onMessageReceived(RemoteMessage remoteMessage) {
-
-        notificationQueue.add(remoteMessage.getData().get("key1"));
-        Log.e("SIZE","QUEUE SIZE IS "+notificationQueue.size()+notificationQueue);
-//        for(int i=0; i<notificationQueue.size(); i++){
-//            //sendNotification(notificationQueue.get(i),"body",remoteMessage);
-//            speechToText(notificationQueue.get(i),"English");
-//        }
 
         AudioManager am = (AudioManager) getSystemService(Context.AUDIO_SERVICE);
         switch (am.getRingerMode()) {
@@ -65,16 +61,26 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
                 Log.e("MyApp", "Normal mode");
                 break;
         }
+        notificationQueue.add(remoteMessage.getData().get("key1"));
+
+        if (isSilent) {
+            SharedPreferences sharedPreferences = getSharedPreferences("shared preferences", MODE_PRIVATE);
+            SharedPreferences.Editor editor = sharedPreferences.edit();
+            Gson gson = new Gson();
+            String json = gson.toJson(notificationQueue);
+            editor.putString("notificationList", json);
+            editor.apply();
+        }
+
         sharedpreferences = getSharedPreferences(SHARED_PREFS, Context.MODE_PRIVATE);
         notification = sharedpreferences.getString(NOTIFICATION_KEY, null);
         language = sharedpreferences.getString(LANGUAGE_KEY, null);
+
         Log.e("TAG", "PREFS VAL IS " + notification + "\n" + language);
         //Log.e(TAG, "From: " + remoteMessage.getFrom());
         String title = remoteMessage.getData().get("key1");
         String body = remoteMessage.getData().get("key2");
         //only title is of our use/
-
-        Log.e("SIZE", "LIST SIZE IS " + notificationQueue.size()+notificationQueue);
 
         if (notification.equals("Enable Audio Notifications")) {
             if (language.equals("Hindi")) {
@@ -84,6 +90,7 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
                     speechToText(title, "English");
                 }
                 sendNotification(title, body, remoteMessage);
+                notificationPriority++;
             }
         } else {
             if (language.equals("Hindi")) {
@@ -95,29 +102,21 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
     }
 
     private void sendNotification(String title, String body, RemoteMessage remoteMessage) {
-        NotificationCompat.Builder notificationBuilder = new NotificationCompat.Builder(this)
+
+        Notification notificationBuilder = new NotificationCompat.Builder(this)
                 .setSmallIcon(R.drawable.ic_launcher_background)
                 .setContentTitle(title)
                 //.setContentText(body)
                 .setDefaults(Notification.DEFAULT_SOUND)
-                .setAutoCancel(true);
+                .setAutoCancel(true)
+                .setPriority(NotificationCompat.PRIORITY_LOW).build();
 
         NotificationManager notificationManager =
                 (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
 
-        notificationManager.notify(0 /* ID of notification */, notificationBuilder.build());
+        SystemClock.sleep(2000);
+        notificationManager.notify(notificationPriority /* ID of notification */, notificationBuilder);
 
-
-        if (remoteMessage.getData().size() > 0) {
-            //Log.e("TAG", "SIZE IS " + remoteMessage.getData().size());
-            //Log.e("TAG", "REMOTE MESSAGE DATA IS " + remoteMessage.getData().toString() + "\n" + remoteMessage.toString() + "\n");
-
-            for (String key : remoteMessage.getData().keySet()) {
-               // Log.e("TAG", "Key " + key + " " + remoteMessage.getData().get(key));
-            }
-            String key1 = remoteMessage.getData().get("key1");
-            String key2 = remoteMessage.getData().get("key2");
-        }
     }
 
     private void translateText(int fromLanguageCode, int toLanguageCode, String title, String body, RemoteMessage remoteMessage, String notification) {

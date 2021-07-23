@@ -5,13 +5,12 @@
     android:layout_height="match_parent"
     tools:context=".MainActivity2">
 
-
     <TextView
         android:id="@+id/idTVLanguage"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_centerHorizontal="true"
-        android:layout_marginTop="50dp"
+        android:layout_marginTop="30dp"
         android:gravity="center"
         android:padding="5dp"
         android:text="Select your language"
@@ -23,35 +22,40 @@
         android:id="@+id/idRGLanguage"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_below="@id/idTVLanguage">
+        android:layout_below="@id/idTVLanguage"
+        android:gravity="center"
+        android:orientation="horizontal">
 
         <RadioButton
             android:id="@+id/rbEnglish"
-            android:layout_width="match_parent"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center"
+            android:layout_marginStart="20dp"
+            android:layout_marginEnd="20dp"
             android:padding="10dp"
             android:text="English"
             android:textColor="@color/black" />
 
         <RadioButton
             android:id="@+id/rbHindi"
-            android:layout_width="match_parent"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center"
+            android:layout_marginStart="20dp"
+            android:layout_marginEnd="20dp"
             android:padding="10dp"
             android:text="Hindi"
             android:textColor="@color/black" />
 
     </RadioGroup>
 
-
     <TextView
         android:id="@+id/idTVNotification"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_below="@id/idRGLanguage"
-        android:layout_marginTop="30dp"
+        android:layout_marginTop="20dp"
         android:gravity="center"
         android:padding="4dp"
         android:text="Enable / Disable Notifications"
@@ -63,7 +67,8 @@
         android:id="@+id/idRGNotification"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_below="@id/idTVNotification">
+        android:layout_below="@id/idTVNotification"
+        android:visibility="gone">
 
         <RadioButton
             android:id="@+id/rbEnable"
@@ -85,14 +90,74 @@
 
     </RadioGroup>
 
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/idTVNotification"
+        android:layout_marginStart="35dp"
+        android:layout_marginLeft="35dp"
+        android:layout_marginTop="30dp"
+        android:layout_marginEnd="5dp"
+        android:layout_marginRight="5dp"
+        android:gravity="center_horizontal"
+        android:text="Disable Audio\nNotifications"
+        android:textAlignment="center"
+        android:textColor="@color/black" />
+
+
+    <!--    <LinearLayout-->
+    <!--        android:id="@+id/idLLNotif"-->
+    <!--        android:layout_width="match_parent"-->
+    <!--        android:layout_height="wrap_content"-->
+    <!--        android:layout_below="@id/idRGNotification"-->
+    <!--        android:layout_centerHorizontal="true"-->
+    <!--        android:orientation="horizontal"-->
+    <!--        android:weightSum="5">-->
+
+
+    <Switch
+        android:id="@+id/idNotificationSwitch"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/idTVNotification"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="30dp"
+        android:checked="true"
+        tools:ignore="UseSwitchCompatOrMaterialXml" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/idTVNotification"
+        android:layout_alignParentEnd="true"
+        android:layout_alignParentRight="true"
+        android:layout_marginStart="5dp"
+        android:layout_marginLeft="5dp"
+        android:layout_marginTop="30dp"
+        android:layout_marginEnd="35dp"
+        android:layout_marginRight="35dp"
+        android:gravity="center_horizontal"
+        android:text="Enable Audio \n Notifications"
+        android:textAlignment="center"
+        android:textColor="@color/black" />
+
+
+    <!--    </LinearLayout>-->
+
 
     <Button
         android:id="@+id/idBtnSpeak"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_below="@id/idRGNotification"
+        android:layout_below="@id/idNotificationSwitch"
         android:layout_centerInParent="true"
         android:layout_marginTop="30dp"
         android:text="Save" />
+
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/idRVNotifications"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_below="@id/idBtnSpeak" />
 
 </RelativeLayout>

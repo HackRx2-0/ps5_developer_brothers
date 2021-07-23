@@ -1,17 +1,21 @@
 package com.gtappdevelopers.bajajfinserv;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
+import android.widget.CompoundButton;
 import android.widget.RadioButton;
 import android.widget.RadioGroup;
+import android.widget.Switch;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
@@ -20,9 +24,13 @@ import com.google.android.gms.tasks.Task;
 import com.google.firebase.messaging.FirebaseMessaging;
 import com.google.firebase.ml.common.modeldownload.FirebaseModelDownloadConditions;
 import com.google.firebase.ml.naturallanguage.FirebaseNaturalLanguage;
-import com.google.firebase.ml.naturallanguage.translate.FirebaseTranslateLanguage;
 import com.google.firebase.ml.naturallanguage.translate.FirebaseTranslator;
 import com.google.firebase.ml.naturallanguage.translate.FirebaseTranslatorOptions;
+import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
+
+import java.lang.reflect.Type;
+import java.util.ArrayList;
 
 public class MainActivity2 extends AppCompatActivity {
 
@@ -33,12 +41,16 @@ public class MainActivity2 extends AppCompatActivity {
     public static final String LANGUAGE_KEY = "language_key";
     public static final String NOTIFICATION_KEY = "notification_key";
     SharedPreferences sharedpreferences;
-
-
+    private ArrayList<String> notificationList;
+    String notificationCheck = "";
     String language, notification;
     Button speakBtn;
     RadioButton enableNot, disableNot, englishRB, hindiRB, languageRB, notificationRB;
     RadioGroup languageRG, notificationRG;
+    @SuppressLint("UseSwitchCompatOrMaterialCode")
+    Switch notificationSW;
+    private NotificationRVAdapter notificationRVAdapter;
+    private RecyclerView notificationRV;
 
 
     @Override
@@ -52,20 +64,38 @@ public class MainActivity2 extends AppCompatActivity {
         hindiRB = findViewById(R.id.rbHindi);
         languageRG = findViewById(R.id.idRGLanguage);
         notificationRG = findViewById(R.id.idRGNotification);
-
+        notificationSW = findViewById(R.id.idNotificationSwitch);
+        notificationList = new ArrayList<>();
         sharedpreferences = getSharedPreferences(SHARED_PREFS, Context.MODE_PRIVATE);
         notification = sharedpreferences.getString(NOTIFICATION_KEY, null);
         language = sharedpreferences.getString(LANGUAGE_KEY, null);
-
-        Log.e("TAG","NOTIFY = "+language+"\n\n"+notification);
+        notificationRV = findViewById(R.id.idRVNotifications);
+        notificationCheck=notification;
+        Log.e("TAG", "NOTIFY = " + language + "\n\n" + notification);
 
         if (notification != null) {
             if (notification.equals("Enable Audio Notifications")) {
+                notificationSW.setChecked(true);
                 enableNot.setChecked(true);
             } else {
+                notificationSW.setChecked(false);
                 disableNot.setChecked(true);
             }
         }
+
+        notificationSW.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                if (isChecked) {
+                    //display notification
+                    notificationCheck = "Enable Audio Notifications";
+                    Toast.makeText(MainActivity2.this, "Audio Notification Enabled.", Toast.LENGTH_SHORT).show();
+                } else {
+                    notificationCheck = "Disable Audio Notifications";
+                    Toast.makeText(MainActivity2.this, "Audio Notification Disabled.", Toast.LENGTH_SHORT).show();
+                }
+            }
+        });
 
 
         if (language != null) {
@@ -89,10 +119,10 @@ public class MainActivity2 extends AppCompatActivity {
                         String token = task.getResult();
 
                         //Redmis Note 7s token is
-                       // d_DB-rUoSHSUV2AACIZM2a:APA91bFqVyKKXRt63lhY3ZaGn1SziYU2DWS5vfE2t7CH7CxypvBpZDOSuAjOUdW3QHmKlEdMpx4al4M4p0kPNhDL5XU_gaqtuQuCL5lmEhWEcMiBeZTyD6rAC0gQMm3FfAbobRaoWyri
+                        // d_DB-rUoSHSUV2AACIZM2a:APA91bFqVyKKXRt63lhY3ZaGn1SziYU2DWS5vfE2t7CH7CxypvBpZDOSuAjOUdW3QHmKlEdMpx4al4M4p0kPNhDL5XU_gaqtuQuCL5lmEhWEcMiBeZTyD6rAC0gQMm3FfAbobRaoWyri
 
                         //Redmi 4 token is below
-                       // eND5L-4KRuaqV2-MSF1cZV:APA91bFp24DLu3jCD4iEIb39G5Q1HW2kIbE8GHidAcnX3SPKQ31RofdULIYxTn3LfBPdpoDIWINCF1DHnWiVNPrl_Djzjr-1Xyq2YcY8rpIbDmT4iX5bgW2PkqWvWO_n_Nnuwk5XGAQh
+                        // eND5L-4KRuaqV2-MSF1cZV:APA91bFp24DLu3jCD4iEIb39G5Q1HW2kIbE8GHidAcnX3SPKQ31RofdULIYxTn3LfBPdpoDIWINCF1DHnWiVNPrl_Djzjr-1Xyq2YcY8rpIbDmT4iX5bgW2PkqWvWO_n_Nnuwk5XGAQh
 
                         // Log and toast
                         Log.e("TAG", "TOKEN IS " + token);
@@ -100,6 +130,7 @@ public class MainActivity2 extends AppCompatActivity {
                     }
                 });
 
+        loadNotificationRV();
 
         speakBtn.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -109,14 +140,13 @@ public class MainActivity2 extends AppCompatActivity {
 
                 int selectedNotificationID = notificationRG.getCheckedRadioButtonId();
                 notificationRB = findViewById(selectedNotificationID);
-
                 SharedPreferences.Editor editor = sharedpreferences.edit();
                 editor.putString(LANGUAGE_KEY, languageRB.getText().toString());
-                editor.putString(NOTIFICATION_KEY, notificationRB.getText().toString());
+                editor.putString(NOTIFICATION_KEY, notificationCheck);
 
                 editor.apply();
 
-                Toast.makeText(MainActivity2.this, "Settings Saved" , Toast.LENGTH_SHORT).show();
+                Toast.makeText(MainActivity2.this, "Settings Saved", Toast.LENGTH_SHORT).show();
             }
         });
 
@@ -161,5 +191,18 @@ public class MainActivity2 extends AppCompatActivity {
         });
     }
 
+    private void loadNotificationRV() {
+        SharedPreferences sharedPreferences = getSharedPreferences("shared preferences", MODE_PRIVATE);
+        Gson gson = new Gson();
+        String json = sharedPreferences.getString("notificationList", null);
+        Type type = new TypeToken<ArrayList<String>>() {
+        }.getType();
+        notificationList = gson.fromJson(json, type);
+        if (notificationList == null) {
+            notificationList = new ArrayList<>();
+        }
+        notificationRVAdapter = new NotificationRVAdapter(notificationList, this);
+        notificationRV.setAdapter(notificationRVAdapter);
+    }
 
 }
