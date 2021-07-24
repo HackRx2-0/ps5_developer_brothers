@@ -5,7 +5,6 @@ import android.app.Notification;
 import android.app.NotificationManager;
 import android.content.Context;
 import android.content.SharedPreferences;
-import android.graphics.Bitmap;
 import android.media.AudioManager;
 import android.os.SystemClock;
 import android.speech.tts.TextToSpeech;
@@ -25,13 +24,15 @@ import com.google.firebase.ml.naturallanguage.translate.FirebaseTranslator;
 import com.google.firebase.ml.naturallanguage.translate.FirebaseTranslatorOptions;
 import com.google.gson.Gson;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.Locale;
 
 public class MyFirebaseMessagingService extends FirebaseMessagingService {
 
     private static final String TAG = "MSGTAG";
-    Bitmap bitmap;
+    private DBHandler dbHandler;
     TextToSpeech textToSpeech;
 
     public static final String SHARED_PREFS = "shared_prefs";
@@ -50,17 +51,18 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
         switch (am.getRingerMode()) {
             case AudioManager.RINGER_MODE_SILENT:
                 isSilent = true;
-                Log.e("MyApp", "Silent mode");
+                //silent mode.
                 break;
             case AudioManager.RINGER_MODE_VIBRATE:
                 isSilent = true;
-                Log.e("MyApp", "Vibrate mode");
+                //vibrate mode
                 break;
             case AudioManager.RINGER_MODE_NORMAL:
                 isSilent = false;
-                Log.e("MyApp", "Normal mode");
+                //general mode.
                 break;
         }
+        dbHandler = new DBHandler(this);
         notificationQueue.add(remoteMessage.getData().get("key1"));
 
         if (isSilent) {
@@ -76,11 +78,8 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
         notification = sharedpreferences.getString(NOTIFICATION_KEY, null);
         language = sharedpreferences.getString(LANGUAGE_KEY, null);
 
-        Log.e("TAG", "PREFS VAL IS " + notification + "\n" + language);
-        //Log.e(TAG, "From: " + remoteMessage.getFrom());
         String title = remoteMessage.getData().get("key1");
         String body = remoteMessage.getData().get("key2");
-        //only title is of our use/
 
         if (notification.equals("Enable Audio Notifications")) {
             if (language.equals("Hindi")) {
@@ -103,10 +102,12 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
 
     private void sendNotification(String title, String body, RemoteMessage remoteMessage) {
 
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy.MM.dd 'at' HH:mm");
+        String currentDateandTime = sdf.format(new Date());
+        dbHandler.addNewNotification(title, currentDateandTime);
         Notification notificationBuilder = new NotificationCompat.Builder(this)
-                .setSmallIcon(R.drawable.ic_launcher_background)
+                .setSmallIcon(R.drawable.bajlogo)
                 .setContentTitle(title)
-                //.setContentText(body)
                 .setDefaults(Notification.DEFAULT_SOUND)
                 .setAutoCancel(true)
                 .setPriority(NotificationCompat.PRIORITY_LOW).build();

@@ -2,6 +2,7 @@ package com.gtappdevelopers.bajajfinserv;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.util.Log;
@@ -11,10 +12,12 @@ import android.widget.CompoundButton;
 import android.widget.RadioButton;
 import android.widget.RadioGroup;
 import android.widget.Switch;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.android.gms.tasks.OnCompleteListener;
@@ -26,11 +29,9 @@ import com.google.firebase.ml.common.modeldownload.FirebaseModelDownloadConditio
 import com.google.firebase.ml.naturallanguage.FirebaseNaturalLanguage;
 import com.google.firebase.ml.naturallanguage.translate.FirebaseTranslator;
 import com.google.firebase.ml.naturallanguage.translate.FirebaseTranslatorOptions;
-import com.google.gson.Gson;
-import com.google.gson.reflect.TypeToken;
 
-import java.lang.reflect.Type;
 import java.util.ArrayList;
+import java.util.Collections;
 
 public class MainActivity2 extends AppCompatActivity {
 
@@ -41,7 +42,6 @@ public class MainActivity2 extends AppCompatActivity {
     public static final String LANGUAGE_KEY = "language_key";
     public static final String NOTIFICATION_KEY = "notification_key";
     SharedPreferences sharedpreferences;
-    private ArrayList<String> notificationList;
     String notificationCheck = "";
     String language, notification;
     Button speakBtn;
@@ -49,8 +49,6 @@ public class MainActivity2 extends AppCompatActivity {
     RadioGroup languageRG, notificationRG;
     @SuppressLint("UseSwitchCompatOrMaterialCode")
     Switch notificationSW;
-    private NotificationRVAdapter notificationRVAdapter;
-    private RecyclerView notificationRV;
 
 
     @Override
@@ -62,16 +60,31 @@ public class MainActivity2 extends AppCompatActivity {
         disableNot = findViewById(R.id.rbDisable);
         englishRB = findViewById(R.id.rbEnglish);
         hindiRB = findViewById(R.id.rbHindi);
+        TextView viewAllTV = findViewById(R.id.idTVViewAll);
         languageRG = findViewById(R.id.idRGLanguage);
         notificationRG = findViewById(R.id.idRGNotification);
         notificationSW = findViewById(R.id.idNotificationSwitch);
-        notificationList = new ArrayList<>();
+        ArrayList<DataModal> notificationList = new ArrayList<>();
         sharedpreferences = getSharedPreferences(SHARED_PREFS, Context.MODE_PRIVATE);
         notification = sharedpreferences.getString(NOTIFICATION_KEY, null);
         language = sharedpreferences.getString(LANGUAGE_KEY, null);
-        notificationRV = findViewById(R.id.idRVNotifications);
-        notificationCheck=notification;
-        Log.e("TAG", "NOTIFY = " + language + "\n\n" + notification);
+        RecyclerView notificationRV = findViewById(R.id.idRVNotifications);
+        notificationCheck = notification;
+        DBHandler dbHandler = new DBHandler(this);
+        notificationRV.setLayoutManager(new LinearLayoutManager(this));
+        notificationList = dbHandler.readNotifications();
+        Collections.reverse(notificationList);
+        NotificationRVAdapter notificationRVAdapter = new NotificationRVAdapter(notificationList, this);
+        notificationRV.setAdapter(notificationRVAdapter);
+        notificationRVAdapter.notifyDataSetChanged();
+
+        viewAllTV.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent i = new Intent(MainActivity2.this, NotificationsActivity.class);
+                startActivity(i);
+            }
+        });
 
         if (notification != null) {
             if (notification.equals("Enable Audio Notifications")) {
@@ -130,7 +143,6 @@ public class MainActivity2 extends AppCompatActivity {
                     }
                 });
 
-        loadNotificationRV();
 
         speakBtn.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -189,20 +201,6 @@ public class MainActivity2 extends AppCompatActivity {
                 // Toast.makeText(MainActivity.this, "1 stmtd error =" + e, Toast.LENGTH_SHORT).show();
             }
         });
-    }
-
-    private void loadNotificationRV() {
-        SharedPreferences sharedPreferences = getSharedPreferences("shared preferences", MODE_PRIVATE);
-        Gson gson = new Gson();
-        String json = sharedPreferences.getString("notificationList", null);
-        Type type = new TypeToken<ArrayList<String>>() {
-        }.getType();
-        notificationList = gson.fromJson(json, type);
-        if (notificationList == null) {
-            notificationList = new ArrayList<>();
-        }
-        notificationRVAdapter = new NotificationRVAdapter(notificationList, this);
-        notificationRV.setAdapter(notificationRVAdapter);
     }
 
 }

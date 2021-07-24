@@ -22,8 +22,6 @@ public class MainActivity extends AppCompatActivity {
 
     List<AuthUI.IdpConfig> providers = Arrays.asList(
             new AuthUI.IdpConfig.EmailBuilder().build()
-            //  new AuthUI.IdpConfig.PhoneBuilder().build(),
-            //    new AuthUI.IdpConfig.GoogleBuilder().build()
     );
 
     @Override
@@ -41,7 +39,6 @@ public class MainActivity extends AppCompatActivity {
                     startActivity(i);
                     finish();
 
-                    // Toast.makeText(MainActivity.this, "User Signed In", Toast.LENGTH_SHORT).show();
                 } else {
                     startActivityForResult(
                             AuthUI.getInstance()
@@ -71,18 +68,6 @@ public class MainActivity extends AppCompatActivity {
     protected void onPause() {
         super.onPause();
         mFirebaseAuth.removeAuthStateListener(mAuthStateListner);
-
-
-//        if(getIntent().getExtras()!=null){
-//            for(String key:getIntent().getExtras().keySet()){
-//                if(key.equals("title")){
-//                    Log.e("TAG","TITLE IS "+getIntent().getExtras().getString(key));
-//                }else if(key.equals("message")){
-//                    Log.e("TAG","MESSAGE IS "+getIntent().getExtras().getString(key));
-//
-//                }
-//            }
-//        }
 
     }
 }
